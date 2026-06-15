@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Principal Dashboard — PM SHRI</title>
+<?!= include('Styles'); ?>
+<style>
+body { background: #f0f4f8; }
+.topbar {
+  background: var(--navy);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+.topbar .logo { color: #fff; font-size: 16px; font-weight: 700; }
+.topbar .logo span { color: var(--gold); }
+.topbar .user-info { margin-left: auto; color: rgba(255,255,255,.8); font-size: 13px; }
+.topbar .user-info strong { color: #fff; }
+.layout { display: flex; min-height: calc(100vh - 52px); }
+.sidebar {
+  width: 220px;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  padding: 16px 0;
+}
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all .15s;
+  border-left: 3px solid transparent;
+}
+.sidebar a:hover    { background: #f8fafc; color: var(--navy); border-left-color: var(--border); }
+.sidebar a.active   { background: #eff6ff; color: var(--navy); border-left-color: var(--navy); font-weight: 700; }
+.sidebar .divider   { border-top: 1px solid var(--border); margin: 8px 0; }
+.main { flex: 1; padding: 24px; overflow-y: auto; }
+.page-tab { display: none; }
+.page-tab.active { display: block; }
+.dash-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 16px; margin-bottom: 24px; }
+.dash-card { background: #fff; border-radius: 10px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.dash-card .icon { font-size: 28px; margin-bottom: 8px; }
+.dash-card .num  { font-size: 24px; font-weight: 800; color: var(--navy); }
+.dash-card .lbl  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.panel { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; }
+.panel-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+.tab-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.pill { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid var(--border); background: #fff; color: var(--text); transition: all .15s; }
+.pill.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.gallery-mgr { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; }
+.gallery-thumb { position: relative; aspect-ratio: 4/3; border-radius: 8px; overflow: hidden; }
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-thumb .del-btn {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(229,62,62,.9); color: #fff;
+  border: none; border-radius: 4px; padding: 3px 7px; font-size: 12px;
+  cursor: pointer; display: none;
+}
+.gallery-thumb:hover .del-btn { display: block; }
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: #fafafa;
+}
+.upload-zone:hover { border-color: var(--navy); background: #eff6ff; }
+.upload-zone .icon { font-size: 32px; margin-bottom: 8px; }
+.upload-zone p { color: var(--muted); font-size: 13px; }
+.progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 10px; display: none; }
+.progress-fill { height: 100%; background: var(--saffron); transition: width .3s; }
+@media(max-width:640px){
+  .sidebar { display: none; }
+  .layout { flex-direction: column; }
+  .mobile-nav { display: flex; overflow-x: auto; background: #fff; border-bottom: 1px solid var(--border); padding: 0 8px; }
+  .mobile-nav a { padding: 12px 14px; font-size: 12px; white-space: nowrap; color: var(--text); text-decoration: none; font-weight: 600; border-bottom: 3px solid transparent; }
+  .mobile-nav a.active { color: var(--navy); border-bottom-color: var(--navy); }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">🏫 PM SHRI <span>Dashboard</span></div>
+  <div class="user-info">
+    Namaste, <strong id="user-name">...</strong> &nbsp;|&nbsp;
+    <a href="#" onclick="doLogout()" style="color:#F7A800;font-size:12px">Logout</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <a href="#" class="active" onclick="showTab('overview',this)">📊 Overview</a>
+    <a href="#" onclick="showTab('school-info',this)">🏫 School Info</a>
+    <a href="#" onclick="showTab('pages',this)">📄 Pages</a>
+    <a href="#" onclick="showTab('gallery',this)">🖼 Gallery</a>
+    <div class="divider"></div>
+    <a href="#" id="view-site-link" target="_blank">🌐 Website Dekhen</a>
+    <a href="#" onclick="doLogout()" style="color:var(--red)">🚪 Logout</a>
+  </nav>
+
+  <main class="main">
+    <div id="loading-state" style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">⏳</div>
+      Dashboard load ho raha hai...
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="page-tab" id="tab-overview">
+      <h2 style="font-size:20px;color:var(--navy);margin-bottom:16px">Dashboard Overview</h2>
+      <div class="dash-cards">
+        <div class="dash-card"><div class="icon">👨‍🎓</div><div class="num" id="ov-students">—</div><div class="lbl">Vidyarthi</div></div>
+        <div class="dash-card"><div class="icon">👩‍🏫</div><div class="num" id="ov-teachers">—</div><div class="lbl">Shikshak</div></div>
+        <div class="dash-card"><div class="icon">🖼</div><div class="num" id="ov-photos">—</div><div class="lbl">Gallery Photos</div></div>
+        <div class="dash-card"><div class="icon">📄</div><div class="num" id="ov-pages">—</div><div class="lbl">Pages Active</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">🚀 Quick Actions</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="showTab('school-info',null)">✏️ School Info Edit Karen</button>
+          <button class="btn btn-secondary" onclick="showTab('gallery',null)">📷 Photo Upload Karen</button>
+          <a id="quick-view-site" href="#" target="_blank" class="btn" style="background:#38a169;color:#fff">🌐 Website Dekhen</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHOOL INFO -->
+    <div class="page-tab" id="tab-school-info">
+      <div class="panel">
+        <div class="panel-title">🏫 School Information Edit Karen</div>
+        <div id="info-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">School Ka Naam</label>
+            <input type="text" class="form-input" id="si-name" placeholder="School name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tagline / Motto</label>
+            <input type="text" class="form-input" id="si-tagline" placeholder="Vidyalay ka motto">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Principal Ka Naam</label>
+            <input type="text" class="form-input" id="si-principal">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sthapana Varsh</label>
+            <input type="text" class="form-input" id="si-estd" placeholder="1975">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kul Vidyarthi</label>
+            <input type="number" class="form-input" id="si-students">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kul Shikshak</label>
+            <input type="number" class="form-input" id="si-teachers">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-input" id="si-phone">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-input" id="si-address">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notice / Ticker (Homepage par dikhega)</label>
+          <input type="text" class="form-input" id="si-notice" placeholder="Koi important announcement...">
+        </div>
+        <button class="btn btn-primary" id="btn-save-info">💾 Save Karen</button>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="page-tab" id="tab-pages">
+      <div class="panel">
+        <div class="panel-title">📄 Page Content Edit Karen</div>
+        <div class="tab-pills">
+          <button class="pill active" onclick="switchPage('about',this)">Hamare Baare Mein</button>
+          <button class="pill" onclick="switchPage('academics',this)">Academics</button>
+          <button class="pill" onclick="switchPage('facilities',this)">Suvidhayen</button>
+          <button class="pill" onclick="switchPage('contact',this)">Sampark</button>
+        </div>
+        <div id="page-alert"></div>
+        <div class="form-group">
+          <label class="form-label" id="page-label">Hamare Baare Mein — Content</label>
+          <textarea class="form-textarea" id="page-content" style="min-height:200px" placeholder="Yahan content likhein..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-save-page">💾 Page Save Karen</button>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="page-tab" id="tab-gallery">
+      <div class="panel">
+        <div class="panel-title">🖼 Photo Gallery Manage Karen</div>
+
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+          <input type="file" id="file-input" accept="image/*" multiple style="display:none">
+          <div class="icon">📷</div>
+          <p><strong>Photos select karen</strong> ya yahan drag karein</p>
+          <p style="font-size:11px;margin-top:4px">JPG, PNG — Max 5MB per photo</p>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <input type="text" class="form-input" id="photo-caption" placeholder="Caption (optional)">
+        </div>
+        <div class="progress-bar" id="upload-progress">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div id="gallery-alert"></div>
+        <button class="btn btn-primary" id="btn-upload" style="margin-top:8px">📤 Upload Karen</button>
+
+        <hr style="margin:20px 0;border-color:var(--border)">
+        <div class="panel-title" style="margin-bottom:12px">Uploaded Photos</div>
+        <div class="gallery-mgr" id="gallery-grid">
+          <div style="color:var(--muted);font-size:13px">Photos load ho rahi hain...</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var TOKEN     = localStorage.getItem('pmshri_token') || '';
+  var APP_URL   = '<?= getBaseUrl() ?>';
+  var schoolId  = '';
+  var currentPage = 'about';
+  var pageData    = {};
+  var galleryData = [];
+
+  // No token → redirect to login
+  if(!TOKEN){
+    window.location.href = APP_URL + '?p=login';
+    return;
+  }
+
+  function showAlert(id, msg, type){
+    var el=document.getElementById(id);
+    el.className='alert show alert-'+type;
+    el.textContent=msg;
+    setTimeout(function(){ el.className='alert'; }, 4000);
+  }
+
+  function showTab(name, link){
+    document.querySelectorAll('.page-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.getElementById('tab-'+name).classList.add('active');
+    document.querySelectorAll('.sidebar a').forEach(function(a){ a.classList.remove('active'); });
+    if(link) link.classList.add('active');
+    else {
+      document.querySelectorAll('.sidebar a').forEach(function(a){
+        if(a.getAttribute('onclick') && a.getAttribute('onclick').includes("'"+name+"'")) a.classList.add('active');
+      });
+    }
+  }
+  window.showTab = showTab;
+
+  function switchPage(type, btn){
+    currentPage = type;
+    document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    var labels = { about:'Hamare Baare Mein', academics:'Academics', facilities:'Suvidhayen', contact:'Sampark' };
+    document.getElementById('page-label').textContent = labels[type] + ' — Content';
+    document.getElementById('page-content').value = pageData[type] || '';
+  }
+  window.switchPage = switchPage;
+
+  // Load dashboard data
+  google.script.run
+    .withSuccessHandler(function(res){
+      document.getElementById('loading-state').style.display = 'none';
+      document.querySelectorAll('.page-tab')[0].classList.add('active');
+
+      if(!res.success){
+        localStorage.clear();
+        window.location.href = APP_URL + '?p=login';
+        return;
+      }
+
+      var s = res.school;
+      schoolId = s.id;
+      pageData  = res.pages || {};
+      galleryData = res.gallery || [];
+
+      document.getElementById('user-name').textContent = res.name;
+      var siteUrl = APP_URL + '?p=site&s=' + schoolId;
+      document.getElementById('view-site-link').href = siteUrl;
+      document.getElementById('quick-view-site').href = siteUrl;
+
+      // Overview stats
+      document.getElementById('ov-students').textContent = s.students || '—';
+      document.getElementById('ov-teachers').textContent = s.teachers || '—';
+      document.getElementById('ov-photos').textContent   = galleryData.length;
+      document.getElementById('ov-pages').textContent    = Object.values(pageData).filter(function(v){return v;}).length;
+
+      // School info form
+      document.getElementById('si-name').value      = s.name      || '';
+      document.getElementById('si-tagline').value   = s.tagline   || '';
+      document.getElementById('si-principal').value = s.principal || '';
+      document.getElementById('si-estd').value      = s.established || '';
+      document.getElementById('si-students').value  = s.students  || '';
+      document.getElementById('si-teachers').value  = s.teachers  || '';
+      document.getElementById('si-phone').value     = s.phone     || '';
+      document.getElementById('si-address').value   = s.address   || '';
+      document.getElementById('si-notice').value    = s.notice    || '';
+
+      // Pages - default
+      document.getElementById('page-content').value = pageData['about'] || '';
+
+      // Gallery
+      renderGallery();
+    })
+    .withFailureHandler(function(err){
+      document.getElementById('loading-state').innerHTML = '<p style="color:var(--red)">Load nahi ho paya. <a href="">Refresh karen</a></p>';
+    })
+    .getDashboardData(TOKEN);
+
+  // Save school info
+  document.getElementById('btn-save-info').addEventListener('click', function(){
+    var btn=this; btn.disabled=true; btn.textContent='Saving...';
+    var updates = {
+      name:s(document.getElementById('si-name')), tagline:s(document.getElementById('si-tagline')),
+      principal:s(document.getElementById('si-principal')), established:s(document.getElementById('si-estd')),
+      students:s(document.getElementById('si-students')), teachers:s(document.getElementById('si-teachers')),
+      phone:s(document.getElementById('si-phone')), address:s(document.getElementById('si-address')),
+      notice:s(document.getElementById('si-notice')),
+    };
+    function s(el){ return el.value.trim(); }
+    google.script.run
+      .withSuccessHandler(function(res){
+        btn.disabled=false; btn.textContent='💾 Save Karen';
+        showAlert('info-alert', res.message||'Saved!', res.success?'success':'error');
+      })
+      .withFailureHandler(function(){ btn.disabled=false; btn.textContent='💾 Save Karen'; showAlert('info-alert','Error!','error'); })
+      .updateSchool(schoolId, updates, TOKEN);
+  });
+
+  // Save page
+  document.getElementById('btn-save-page').addEventListener('click', function(){
+    var btn=this; btn.disabled=true; btn.textContent='Saving...';
+    var content = document.getElementById('page-content').value;
+    pageData[currentPage] = content;
+    google.script.run
+      .withSuccessHandler(function(res){
+        btn.disabled=false; btn.textContent='💾 Page Save Karen';
+        showAlert('page-alert', res.message||'Saved!', res.success?'success':'error');
+      })
+      .withFailureHandler(function(){ btn.disabled=false; btn.textContent='💾 Page Save Karen'; })
+      .savePageContent(schoolId, currentPage, content, TOKEN);
+  });
+
+  // Photo upload
+  var selectedFile = null;
+  document.getElementById('file-input').addEventListener('change', function(){
+    if(this.files.length) selectedFile = this.files[0];
+  });
+
+  var zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover',function(e){ e.preventDefault(); zone.style.borderColor='var(--navy)'; });
+  zone.addEventListener('dragleave',function(){ zone.style.borderColor='var(--border)'; });
+  zone.addEventListener('drop',function(e){ e.preventDefault(); zone.style.borderColor='var(--border)'; selectedFile=e.dataTransfer.files[0]; showAlert('gallery-alert','File selected: '+selectedFile.name,'info'); });
+
+  document.getElementById('btn-upload').addEventListener('click', function(){
+    if(!selectedFile){ showAlert('gallery-alert','Pehle file select karen.','error'); return; }
+    if(selectedFile.size > 5*1024*1024){ showAlert('gallery-alert','File 5MB se chhoti honi chahiye.','error'); return; }
+    var btn=this; btn.disabled=true; btn.textContent='Uploading...';
+    var prog=document.getElementById('upload-progress'); prog.style.display='block';
+    document.getElementById('progress-fill').style.width='40%';
+    var caption=document.getElementById('photo-caption').value.trim();
+    var reader=new FileReader();
+    reader.onload=function(e){
+      document.getElementById('progress-fill').style.width='70%';
+      var base64=e.target.result.split(',')[1];
+      google.script.run
+        .withSuccessHandler(function(res){
+          btn.disabled=false; btn.textContent='📤 Upload Karen';
+          document.getElementById('progress-fill').style.width='100%';
+          setTimeout(function(){ prog.style.display='none'; document.getElementById('progress-fill').style.width='0%'; },500);
+          if(res.success){
+            showAlert('gallery-alert','Photo upload ho gaya!','success');
+            galleryData.push({ file_url:res.file_url, caption:caption, id:'new_'+Date.now() });
+            document.getElementById('ov-photos').textContent = galleryData.length;
+            renderGallery();
+            selectedFile=null;
+            document.getElementById('photo-caption').value='';
+          } else {
+            showAlert('gallery-alert',res.message,'error');
+          }
+        })
+        .withFailureHandler(function(err){
+          btn.disabled=false; btn.textContent='📤 Upload Karen'; prog.style.display='none';
+          showAlert('gallery-alert','Upload failed.','error');
+        })
+        .uploadPhoto(base64, selectedFile.name, selectedFile.type, schoolId, caption, TOKEN);
+    };
+    reader.readAsDataURL(selectedFile);
+  });
+
+  function renderGallery(){
+    var grid=document.getElementById('gallery-grid');
+    if(!galleryData.length){ grid.innerHTML='<p style="color:var(--muted);font-size:13px">Abhi koi photos nahi hain.</p>'; return; }
+    grid.innerHTML=galleryData.map(function(img){
+      return '<div class="gallery-thumb">'+
+        '<img src="'+img.file_url+'" alt="'+( img.caption||'')+'">'+
+        '<button class="del-btn" onclick="deletePhoto(\''+img.id+'\')">✕</button>'+
+      '</div>';
+    }).join('');
+  }
+
+  window.deletePhoto = function(imgId){
+    if(!confirm('Yeh photo delete karni hai?')) return;
+    google.script.run
+      .withSuccessHandler(function(res){
+        if(res.success){
+          galleryData=galleryData.filter(function(i){return i.id!==imgId;});
+          document.getElementById('ov-photos').textContent=galleryData.length;
+          renderGallery();
+        }
+      })
+      .deletePhoto(imgId, schoolId, TOKEN);
+  };
+
+  window.doLogout = function(){
+    if(TOKEN) google.script.run.destroySession(TOKEN);
+    localStorage.clear();
+    window.location.href = APP_URL + '?p=login';
+  };
+})();
+</script>
+</body>
+</html>
