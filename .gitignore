@@ -1,0 +1,12 @@
+# Secrets & local config
+gas-bridge/.clasp.json
+*.env
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
