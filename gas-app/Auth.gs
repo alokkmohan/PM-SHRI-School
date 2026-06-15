@@ -2,10 +2,19 @@
 // Auth — OTP generation, email, verification
 // ============================================================
 
+function isAllowedDomain(email) {
+  const domain = email.split('@')[1] || '';
+  return CONFIG.ALLOWED_DOMAINS.some(function(d) { return domain === d; });
+}
+
 // Called from client via google.script.run
 function sendOTP(email) {
   if (!email) return { success: false, message: 'Email required' };
   email = email.toLowerCase().trim();
+
+  if (!isAllowedDomain(email)) {
+    return { success: false, message: 'Sirf UP Sarkar ki email IDs allowed hain (@up.gov.in)' };
+  }
 
   const user = findUser(email);
   if (!user) return { success: false, message: 'Yeh email authorized nahi hai. Admin se sampark karen.' };

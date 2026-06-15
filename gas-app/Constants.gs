@@ -9,7 +9,10 @@ const CONFIG = {
   SESSION_HOURS   : 8,
   SYSTEM_NAME     : 'PM SHRI Schools Network',
   STATE           : 'Uttar Pradesh',
-  SUPPORT_EMAIL   : 'alok.mohan@educategirls.ngo',
+  SUPPORT_EMAIL   : 'pmshri-up@up.gov.in',
+
+  // Only these email domains can login
+  ALLOWED_DOMAINS : ['up.gov.in', 'upeducation.gov.in', 'educategirls.ngo'],
 
   TABS: {
     SCHOOLS       : 'Schools',
