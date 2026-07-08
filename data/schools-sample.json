@@ -14,9 +14,13 @@
     "EstablishedYear": "1985",
     "StudentStrength": "980",
     "TeacherStrength": "42",
-    "Latitude": "26.8500",
-    "Longitude": "80.9460",
-    "Description": "One of the PM SHRI upgraded composite schools in Lucknow district, offering education from Class I to XII with modern labs and smart classrooms."
+    "MapLink": "https://maps.app.goo.gl/6Zg5s2mPq7Nn8Kk8A",
+    "Description": "One of the PM SHRI upgraded composite schools in Lucknow district, offering education from Class I to XII with modern labs and smart classrooms. This sample record shows the full profile a school page displays once photos and details are filled in.",
+    "Photos": [
+      { "PhotoID": "sample-1", "Label": "School Building", "URL": "assets/sample-photos/building.jpg" },
+      { "PhotoID": "sample-2", "Label": "Science Lab", "URL": "assets/sample-photos/lab.jpg" },
+      { "PhotoID": "sample-3", "Label": "Students in Classroom", "URL": "assets/sample-photos/classroom.jpg" }
+    ]
   },
   {
     "Code": "9010202202",
@@ -33,9 +37,9 @@
     "EstablishedYear": "1978",
     "StudentStrength": "410",
     "TeacherStrength": "18",
-    "Latitude": "26.4670",
-    "Longitude": "80.3350",
-    "Description": "An upper primary PM SHRI school serving the Kanpur City block, focused on foundational literacy and numeracy alongside co-curricular activities."
+    "MapLink": "",
+    "Description": "An upper primary PM SHRI school serving the Kanpur City block, focused on foundational literacy and numeracy alongside co-curricular activities.",
+    "Photos": []
   },
   {
     "Code": "9010303303",
@@ -52,9 +56,9 @@
     "EstablishedYear": "1962",
     "StudentStrength": "1150",
     "TeacherStrength": "55",
-    "Latitude": "25.3176",
-    "Longitude": "82.9739",
-    "Description": "A girls' inter college recognised under PM SHRI, known for strong academic results and vocational training programmes."
+    "MapLink": "",
+    "Description": "A girls' inter college recognised under PM SHRI, known for strong academic results and vocational training programmes.",
+    "Photos": []
   },
   {
     "Code": "9010404404",
@@ -71,9 +75,9 @@
     "EstablishedYear": "1990",
     "StudentStrength": "320",
     "TeacherStrength": "12",
-    "Latitude": "26.7606",
-    "Longitude": "83.3732",
-    "Description": "A foundational-stage PM SHRI school emphasising play-based and activity-based learning in line with NEP 2020."
+    "MapLink": "",
+    "Description": "A foundational-stage PM SHRI school emphasising play-based and activity-based learning in line with NEP 2020.",
+    "Photos": []
   },
   {
     "Code": "9010505505",
@@ -90,9 +94,9 @@
     "EstablishedYear": "1974",
     "StudentStrength": "870",
     "TeacherStrength": "38",
-    "Latitude": "27.1590",
-    "Longitude": "78.0092",
-    "Description": "A composite PM SHRI school in Agra with dedicated science and computer labs and an active sports programme."
+    "MapLink": "",
+    "Description": "A composite PM SHRI school in Agra with dedicated science and computer labs and an active sports programme.",
+    "Photos": []
   },
   {
     "Code": "9010606606",
@@ -109,8 +113,8 @@
     "EstablishedYear": "1981",
     "StudentStrength": "540",
     "TeacherStrength": "24",
-    "Latitude": "25.6600",
-    "Longitude": "81.8850",
-    "Description": "A secondary-level PM SHRI school in the Soraon block of Prayagraj district, recently upgraded with new classroom infrastructure."
+    "MapLink": "",
+    "Description": "A secondary-level PM SHRI school in the Soraon block of Prayagraj district, recently upgraded with new classroom infrastructure.",
+    "Photos": []
   }
 ]

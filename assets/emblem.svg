@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="pmshriGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5b301"/>
+      <stop offset="45%" stop-color="#f5820d"/>
+      <stop offset="100%" stop-color="#c0392b"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="url(#pmshriGrad)"/>
+  <path d="M32 12c-1.5 4-4 6-6.5 9-3 3.6-5 7-5 11.2 0 6.6 5.2 12 11.5 12s11.5-5.4 11.5-12c0-2.6-.8-4.6-1.8-6.4-.5 2-1.8 3.4-3.4 3.4-1.9 0-3.2-1.7-3.1-3.7.1-3-1.1-6.3-3.2-8.5-1.3 2-3 3.6-3.6 5.7-.4 1.4-.1 3 .8 4.1.7.9.5 2.2-.5 2.7-1.3.7-2.7-.2-3.1-1.5-.7-2.4-.2-5 1-7.2.9-1.7 2.2-3.2 3.5-4.7-.9-1.3-1.6-2.7-2.1-4.1z" fill="#fff" opacity="0.95"/>
+  <circle cx="40" cy="24" r="3.4" fill="#fff" opacity="0.95"/>
+</svg>

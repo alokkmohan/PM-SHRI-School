@@ -21,9 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { key: "EstablishedYear", label: "Established Year", type: "text" },
     { key: "StudentStrength", label: "Student Strength", type: "text" },
     { key: "TeacherStrength", label: "Teacher Strength", type: "text" },
-    { key: "Latitude", label: "Latitude", type: "text" },
-    { key: "Longitude", label: "Longitude", type: "text" },
-    { key: "ImageURL", label: "Image URL", type: "text" },
+    { key: "MapLink", label: "Google Maps Link (paste the \"Share\" link)", type: "text" },
     { key: "Description", label: "Description", type: "textarea" }
   ];
 
@@ -72,6 +70,106 @@ document.addEventListener("DOMContentLoaded", function () {
       if (val || includeEmpty) fields[el.dataset.field] = val;
     });
     return fields;
+  }
+
+  function readFileAsBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result.split(",")[1]); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function galleryManagerHTML() {
+    return (
+      '<div class="form-field">' +
+      '<label>Photo Gallery (Gate, Building, Lab, Students, Sports Day &mdash; add as many as you like)</label>' +
+      '<div id="gallery-grid" class="grid grid-4" style="margin-bottom:14px;"></div>' +
+      '<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">' +
+      '<input type="text" id="new-photo-label" placeholder="Label (e.g. Gate, Lab, Students)" style="max-width:220px; padding:10px 14px; border:1px solid var(--color-border); border-radius:var(--radius);">' +
+      '<input type="file" id="new-photo-file" accept="image/*">' +
+      '<button type="button" id="add-photo-btn" class="btn btn-primary">Add Photo</button>' +
+      '</div>' +
+      '<p id="gallery-status" class="form-note" hidden></p>' +
+      '</div>'
+    );
+  }
+
+  function photoCardHTML(photo) {
+    return (
+      '<div class="card" style="padding:10px; text-align:center;">' +
+      '<div style="width:100%; aspect-ratio:4/3; border-radius:8px; overflow:hidden; margin-bottom:8px; background:var(--color-bg-alt);">' +
+      '<img src="' + photo.URL + '" alt="' + escapeHTML(photo.Label) + '" style="width:100%; height:100%; object-fit:cover;">' +
+      '</div>' +
+      '<p style="font-size:0.85rem; font-weight:600; margin-bottom:8px;">' + escapeHTML(photo.Label) + '</p>' +
+      '<button type="button" class="btn btn-ghost" data-delete-photo="' + escapeHTML(photo.PhotoID) + '" style="padding:4px 10px; font-size:0.78rem; color:#c0392b; border-color:var(--color-border);">Remove</button>' +
+      '</div>'
+    );
+  }
+
+  function bindGalleryManager(root, code, initialPhotos) {
+    var photos = (initialPhotos || []).slice();
+
+    function draw() {
+      var grid = root.querySelector("#gallery-grid");
+      grid.innerHTML = photos.map(photoCardHTML).join("") ||
+        '<p style="color:var(--color-ink-soft); font-size:0.85rem;">No photos yet.</p>';
+      grid.querySelectorAll("[data-delete-photo]").forEach(function (btn) {
+        btn.addEventListener("click", function () { removePhoto(btn.dataset.deletePhoto); });
+      });
+    }
+
+    function removePhoto(photoId) {
+      if (!confirm("Remove this photo?")) return;
+      api("deletePhoto", { code: code, photoId: photoId }).then(function (data) {
+        if (data.success) {
+          photos = photos.filter(function (p) { return p.PhotoID !== photoId; });
+          draw();
+        } else {
+          alert(data.error || "Remove failed.");
+        }
+      });
+    }
+
+    draw();
+
+    root.querySelector("#add-photo-btn").addEventListener("click", function () {
+      var labelInput = root.querySelector("#new-photo-label");
+      var fileInput = root.querySelector("#new-photo-file");
+      var status = root.querySelector("#gallery-status");
+      var label = labelInput.value.trim();
+      var file = fileInput.files[0];
+
+      if (!label) { alert("Please enter a label for the photo (e.g. Gate, Lab, Students)."); return; }
+      if (!file) { alert("Please choose a photo file."); return; }
+      if (file.size > 5 * 1024 * 1024) { alert("Please choose an image under 5MB."); return; }
+
+      status.hidden = false;
+      status.style.color = "";
+      status.textContent = "Uploading…";
+
+      readFileAsBase64(file)
+        .then(function (base64) {
+          return api("addPhoto", { code: code, label: label, filename: file.name, mimeType: file.type, base64Data: base64 });
+        })
+        .then(function (data) {
+          if (data.success) {
+            status.textContent = "Photo added.";
+            photos.push(data.photo);
+            draw();
+            labelInput.value = "";
+            fileInput.value = "";
+          } else {
+            status.textContent = data.error || "Upload failed.";
+            status.style.color = "#c0392b";
+          }
+        })
+        .catch(function () {
+          status.textContent = "Upload failed. Check your connection.";
+          status.style.color = "#c0392b";
+        });
+    });
   }
 
   // ---------------- Login ----------------
@@ -133,8 +231,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         container.innerHTML =
           FIELDS.map(function (f) { return fieldHTML(f, school[f.key]); }).join("") +
+          galleryManagerHTML() +
           '<button id="school-save" class="btn btn-accent">Save Changes</button>' +
           '<p id="school-save-status" class="form-note" hidden></p>';
+
+        bindGalleryManager(container, code, school.Photos);
 
         document.querySelector("#school-save").addEventListener("click", function () {
           var status = document.querySelector("#school-save-status");
@@ -202,27 +303,36 @@ document.addEventListener("DOMContentLoaded", function () {
     var school = allSchools.filter(function (s) { return String(s.Code) === String(code); })[0];
     if (!school) return;
 
-    modalContainer.innerHTML =
-      "<h3 style='margin-bottom:16px;'>Edit School &mdash; " + escapeHTML(school.SchoolName) + "</h3>" +
-      '<div class="form-field"><label>Code (not editable)</label><input type="text" value="' + escapeHTML(school.Code) + '" disabled></div>' +
-      FIELDS.map(function (f) { return fieldHTML(f, school[f.key]); }).join("") +
-      '<div class="form-field"><label>Username (leave blank to keep unchanged)</label><input type="text" data-field="Username"></div>' +
-      '<div class="form-field"><label>Password (leave blank to keep unchanged)</label><input type="text" data-field="Password"></div>' +
-      '<div style="display:flex; gap:10px;"><button id="modal-save" class="btn btn-accent">Save</button><button id="modal-cancel" class="btn btn-ghost">Cancel</button></div>' +
-      '<p id="modal-status" class="form-note" hidden></p>';
-
+    modalContainer.innerHTML = "<p>Loading school details&hellip;</p>";
     modal.style.display = "flex";
-    document.querySelector("#modal-cancel").addEventListener("click", closeModal);
-    document.querySelector("#modal-save").addEventListener("click", function () {
-      var status = document.querySelector("#modal-status");
-      var fields = collectFields(modalContainer, false);
-      api("updateSchool", { code: school.Code, fields: fields }).then(function (data) {
-        status.hidden = false;
-        status.textContent = data.success ? "Saved." : (data.error || "Save failed.");
-        status.style.color = data.success ? "" : "#c0392b";
-        if (data.success) { loadAdminTable(); setTimeout(closeModal, 700); }
+
+    fetch(APPS_SCRIPT_URL + "?code=" + encodeURIComponent(code))
+      .then(function (res) { return res.json(); })
+      .then(function (detail) {
+        detail = detail || school;
+        modalContainer.innerHTML =
+          "<h3 style='margin-bottom:16px;'>Edit School &mdash; " + escapeHTML(detail.SchoolName) + "</h3>" +
+          '<div class="form-field"><label>Code (not editable)</label><input type="text" value="' + escapeHTML(detail.Code) + '" disabled></div>' +
+          FIELDS.map(function (f) { return fieldHTML(f, detail[f.key]); }).join("") +
+          galleryManagerHTML() +
+          '<div class="form-field"><label>Username (leave blank to keep unchanged)</label><input type="text" data-field="Username"></div>' +
+          '<div class="form-field"><label>Password (leave blank to keep unchanged)</label><input type="text" data-field="Password"></div>' +
+          '<div style="display:flex; gap:10px;"><button id="modal-save" class="btn btn-accent">Save</button><button id="modal-cancel" class="btn btn-ghost">Cancel</button></div>' +
+          '<p id="modal-status" class="form-note" hidden></p>';
+
+        bindGalleryManager(modalContainer, code, detail.Photos);
+        document.querySelector("#modal-cancel").addEventListener("click", closeModal);
+        document.querySelector("#modal-save").addEventListener("click", function () {
+          var status = document.querySelector("#modal-status");
+          var fields = collectFields(modalContainer, false);
+          api("updateSchool", { code: code, fields: fields }).then(function (data) {
+            status.hidden = false;
+            status.textContent = data.success ? "Saved." : (data.error || "Save failed.");
+            status.style.color = data.success ? "" : "#c0392b";
+            if (data.success) { loadAdminTable(); setTimeout(closeModal, 700); }
+          });
+        });
       });
-    });
   }
 
   document.querySelector("#admin-add-btn").addEventListener("click", function () {
