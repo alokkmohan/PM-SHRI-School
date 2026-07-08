@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | PM SHRI Schools, Uttar Pradesh</title>
+<meta name="description" content="School and super admin login for managing the PM SHRI Schools, Uttar Pradesh directory.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-contact">
+      <a href="tel:+911234567890">📞 +91 12345 67890</a>
+      <a href="mailto:info@pmshriup.edu.in">✉️ info@pmshriup.edu.in</a>
+    </div>
+    <div class="topbar-scheme">Government of Uttar Pradesh | Ministry of Education, Government of India</div>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-emblem" aria-hidden="true">PS</div>
+      <div class="brand-text">
+        <h1>PM SHRI Schools</h1>
+        <p>Uttar Pradesh &middot; PM Schools for Rising India</p>
+      </div>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="schools.html">Schools</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="page-banner">
+  <h1>Admin Login</h1>
+  <p class="breadcrumb"><a href="index.html">Home</a> / Admin</p>
+</div>
+
+<main>
+  <section class="section">
+    <div class="container">
+
+      <!-- LOGIN -->
+      <div id="login-view" style="max-width:420px; margin:0 auto;">
+        <div class="card">
+          <h3 style="margin-bottom:16px;">Sign in</h3>
+          <form id="login-form">
+            <div class="form-field">
+              <label for="login-username">Username</label>
+              <input type="text" id="login-username" required autocomplete="username">
+            </div>
+            <div class="form-field">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-accent" style="width:100%;">Login</button>
+            <p id="login-error" class="form-note" style="color:#c0392b;" hidden></p>
+          </form>
+          <p class="form-note">School users: log in with the username/password issued for your school. Super admins: log in with your admin credentials.</p>
+        </div>
+      </div>
+
+      <!-- SCHOOL-LEVEL DASHBOARD -->
+      <div id="school-view" hidden>
+        <div class="section-head" style="text-align:left; margin-bottom:24px;">
+          <div class="section-eyebrow">School Login</div>
+          <h2 style="margin-bottom:4px;">Update Your School's Information</h2>
+          <p>Changes are saved directly to the school directory.</p>
+        </div>
+        <div id="school-form-container" class="card"></div>
+        <button id="school-logout" class="btn btn-ghost" style="margin-top:20px; color:var(--color-primary-dark); border-color:var(--color-border);">Logout</button>
+      </div>
+
+      <!-- SUPER ADMIN DASHBOARD -->
+      <div id="admin-view" hidden>
+        <div class="section-head" style="text-align:left; margin-bottom:24px;">
+          <div class="section-eyebrow">Super Admin</div>
+          <h2 style="margin-bottom:4px;">Manage All Schools</h2>
+          <p>Add, edit, or remove any school in the directory.</p>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+          <input type="text" id="admin-search" placeholder="Search schools..." style="max-width:320px; padding:10px 14px; border:1px solid var(--color-border); border-radius:var(--radius);">
+          <div style="display:flex; gap:10px;">
+            <button id="admin-add-btn" class="btn btn-accent">+ Add New School</button>
+            <button id="admin-logout" class="btn btn-ghost" style="color:var(--color-primary-dark); border-color:var(--color-border);">Logout</button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table id="admin-table" style="width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--color-border); border-radius:var(--radius); overflow:hidden;">
+            <thead style="background:var(--color-primary-light);">
+              <tr>
+                <th style="text-align:left; padding:12px 14px; font-size:0.85rem;">Code</th>
+                <th style="text-align:left; padding:12px 14px; font-size:0.85rem;">School Name</th>
+                <th style="text-align:left; padding:12px 14px; font-size:0.85rem;">District</th>
+                <th style="text-align:left; padding:12px 14px; font-size:0.85rem;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body"></tbody>
+          </table>
+        </div>
+
+        <div id="admin-form-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+          <div class="card" style="max-width:640px; width:100%; max-height:85vh; overflow-y:auto;">
+            <div id="admin-form-container"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">
+        <div class="brand-emblem" aria-hidden="true">PS</div>
+        <div>
+          <h4 style="margin-bottom:4px;">PM SHRI Schools &ndash; Uttar Pradesh</h4>
+          <p>A portal for PM SHRI Yojana schools under the Ministry of Education, Government of India, committed to quality and inclusive education for all.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="schools.html">Schools</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="admin.html">Admin Login</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="https://pmshrischools.education.gov.in/" target="_blank" rel="noopener">National PM SHRI Portal</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p>State Project Office, Lucknow, Uttar Pradesh</p>
+      <p>📞 +91 12345 67890</p>
+      <p>✉️ info@pmshriup.edu.in</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; <span id="current-year"></span> PM SHRI Schools, Uttar Pradesh. All rights reserved.</p>
+    <p>Design placeholder &mdash; content to be updated by the state administration.</p>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
